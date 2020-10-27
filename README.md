@@ -5,6 +5,22 @@ It depends on [SpeedChecker].
 
 [SpeedChecker]: https://github.com/fight4dream/Fight4Dream.Zinnia.SpeedChecker.Unity
 
+## Setup
+
+1. Add the following to your manifest.json
+```
+"scopedRegistries": [ { "name": "npmjs", "url": "https://registry.npmjs.org/", "scopes": [ "io.extendreality" ] } ],
+```
+
+2. In the package manager, Add package from git URL...
+```
+https://github.com/fight4dream/Fight4Dream.Zinnia.SpeedChecker.Unity.git
+```
+and
+```
+https://github.com/fight4dream/Fight4Dream.Locomotors.MoveInPlace.Unity.git
+```
+
 ## License
 
 Code released under the [MIT License][License].
