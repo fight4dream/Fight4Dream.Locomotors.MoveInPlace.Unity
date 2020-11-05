@@ -7,6 +7,7 @@
     using UnityEngine;
     using Zinnia.Action;
     using Zinnia.Data.Attribute;
+    using Zinnia.Data.Collection.List;
     using Zinnia.Data.Operation.Extraction;
     using Zinnia.Data.Type.Transformation.Aggregation;
     using Zinnia.Tracking.Velocity;
@@ -22,7 +23,7 @@
         [Serialized, Cleared]
         public VelocityTracker RightControllerVelocityTracker { get; set; }
         [Serialized, Cleared]
-        public GameObject ForwardSource { get; set; }
+        public GameObjectObservableList ForwardSources { get; set; }
         [Serialized, Cleared]
         public GameObject Target { get; set; }
         [Serialized]
@@ -50,9 +51,6 @@
         [Serialized, Cleared]
         [field: Restricted]
         public FloatMultiplier SetSpeedMultiplier { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public TransformDirectionExtractor SetMoveVelocity { get; set; }
         [Serialized, Cleared]
         [field: Restricted]
         public ArtificialVelocityApplier MoveTarget { get; set; }
@@ -127,15 +125,6 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(ForwardSource))]
-        protected virtual void OnAfterForwardSourceChange()
-        {
-            if (SetMoveVelocity != null)
-            {
-                SetMoveVelocity.Source = ForwardSource;
-            }
-        }
-
         [CalledAfterChangeOf(nameof(Target))]
         protected virtual void OnAfterTargetChange()
         {
@@ -162,7 +151,6 @@
             OnAfterRightControllerVelocityTrackerChange();
             OnAfterSpeedThresholdChange();
             OnAfterSpeedMutiplierChange();
-            OnAfterForwardSourceChange();
             OnAfterTargetChange();
             OnAfterDragChange();
             if (LeftControllerProxy != null)
