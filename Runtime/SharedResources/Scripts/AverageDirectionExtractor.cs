@@ -70,29 +70,33 @@
                 return null;
             }
 
-            if (Source.NonSubscribableElements.Count == 0)
-            {
-                return null;
-            }
-
+            int count = 0;
             Vector3 sum = Vector3.zero;
             foreach (GameObject source in Source.NonSubscribableElements)
             {
-                switch (Direction)
+                if (source.activeInHierarchy)
                 {
-                    case AxisDirection.Right:
-                        sum += UseLocal ? source.transform.localRotation * Vector3.right : source.transform.right;
-                        break;
-                    case AxisDirection.Up:
-                        sum += UseLocal ? source.transform.localRotation * Vector3.up : source.transform.up;
-                        break;
-                    case AxisDirection.Forward:
-                        sum += UseLocal ? source.transform.localRotation * Vector3.forward : source.transform.forward;
-                        break;
+                    switch (Direction)
+                    {
+                        case AxisDirection.Right:
+                            sum += UseLocal ? source.transform.localRotation * Vector3.right : source.transform.right;
+                            break;
+                        case AxisDirection.Up:
+                            sum += UseLocal ? source.transform.localRotation * Vector3.up : source.transform.up;
+                            break;
+                        case AxisDirection.Forward:
+                            sum += UseLocal ? source.transform.localRotation * Vector3.forward : source.transform.forward;
+                            break;
+                    }
+                    ++count;
                 }
             }
 
-            return sum / Source.NonSubscribableElements.Count;
+            if (count == 0)
+            {
+                return null;
+            }
+            return sum / count;
         }
     }
 }
