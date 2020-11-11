@@ -21,6 +21,12 @@ and
 https://github.com/fight4dream/Fight4Dream.Locomotors.MoveInPlace.Unity.git
 ```
 
+## Tutorial
+
+[VRTK V4 Move In Place][TutorialVideo]
+
+[TutorialVideo]: https://youtu.be/nBmMOtwUCtQ
+
 ## License
 
 Code released under the [MIT License][License].
