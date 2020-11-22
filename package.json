@@ -2,7 +2,7 @@
   "name": "com.fight4dream.locomotors.moveinplace.unity",
   "displayName": "FIGHT4DREAM Locomotors.MoveInPlace.Unity",
   "description": "Activate and swing the controllers to move.",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "unity": "2018.3",
   "unityRelease": "10f1",
   "keywords": [
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "io.extendreality.zinnia.unity": "1.24.0",
-    "com.fight4dream.zinnia.speedchecker.unity": "1.1.0"
+    "com.fight4dream.zinnia.speedchecker.unity": "1.2.0"
   },
   "files": [
     "*.md",
