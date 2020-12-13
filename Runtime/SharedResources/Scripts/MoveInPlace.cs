@@ -8,7 +8,6 @@
     using Zinnia.Action;
     using Zinnia.Data.Attribute;
     using Zinnia.Data.Collection.List;
-    using Zinnia.Data.Operation.Extraction;
     using Zinnia.Data.Type.Transformation.Aggregation;
     using Zinnia.Tracking.Velocity;
 
@@ -53,7 +52,7 @@
         public FloatMultiplier SetSpeedMultiplier { get; set; }
         [Serialized, Cleared]
         [field: Restricted]
-        public ArtificialVelocityApplier MoveTarget { get; set; }
+        public ArtificialVelocityApplierProcess MoveTarget { get; set; }
 
         [CalledAfterChangeOf(nameof(LeftControllerVelocityTracker))]
         protected virtual void OnAfterLeftControllerVelocityTrackerChange()
