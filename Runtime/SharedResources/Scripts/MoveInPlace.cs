@@ -6,6 +6,7 @@
     using Malimbe.PropertySerializationAttribute;
     using UnityEngine;
     using Zinnia.Action;
+    using Zinnia.Action.Collection;
     using Zinnia.Data.Attribute;
     using Zinnia.Data.Collection.List;
     using Zinnia.Data.Type.Transformation.Aggregation;
@@ -13,6 +14,9 @@
 
     public class MoveInPlace : MonoBehaviour
     {
+        public enum EngageMode { AnyEngaged, AllEngaged }
+        [Serialized]
+        public EngageMode MoveWhen { get; set; } = EngageMode.AnyEngaged;
         [Serialized, Cleared]
         public BooleanAction LeftControllerAction { get; set; }
         [Serialized, Cleared]
@@ -34,6 +38,15 @@
 
         [Serialized, Cleared]
         [field: Header("Reference Settings"), Restricted]
+        public AnyAction AnyEngaged { get; set; }
+        [Serialized, Cleared]
+        [field: Restricted]
+        public AllAction AllEngaged { get; set; }
+        [Serialized, Cleared]
+        [field: Restricted]
+        public ActionObservableList EngagedControllers { get; set; }
+        [Serialized, Cleared]
+        [field: Restricted]
         public BooleanAction EngageLeftController { get; set; }
         [Serialized, Cleared]
         [field: Restricted]
@@ -53,6 +66,54 @@
         [Serialized, Cleared]
         [field: Restricted]
         public ArtificialVelocityApplierProcess MoveTarget { get; set; }
+
+        [CalledAfterChangeOf(nameof(MoveWhen))]
+        protected virtual void OnAfterMoveWhenChange()
+        {
+            if (AnyEngaged != null && AllEngaged != null)
+            {
+                AnyEngaged.gameObject.SetActive(MoveWhen == EngageMode.AnyEngaged);
+                AllEngaged.gameObject.SetActive(MoveWhen == EngageMode.AllEngaged);
+            }
+        }
+
+        [CalledAfterChangeOf(nameof(LeftControllerAction))]
+        protected virtual void OnAfterLeftControllerActionChange()
+        {
+            if (EngageLeftController != null)
+            {
+                EngageLeftController.ClearSources();
+                EngageLeftController.AddSource(LeftControllerAction);
+            }
+        }
+
+        [CalledAfterChangeOf(nameof(RightControllerAction))]
+        protected virtual void OnAfterRightControllerActionChange()
+        {
+            if (EngageRightController != null)
+            {
+                EngageRightController.ClearSources();
+                EngageRightController.AddSource(RightControllerAction);
+            }
+        }
+
+        [CalledAfterChangeOf(nameof(LeftControllerAction))]
+        [CalledAfterChangeOf(nameof(RightControllerAction))]
+        protected virtual void OnAfterAnyControllerActionChange()
+        {
+            if (EngagedControllers != null)
+            {
+                EngagedControllers.Clear();
+                if (LeftControllerAction != null)
+                {
+                    EngagedControllers.Add(LeftControllerAction);
+                }
+                if (RightControllerAction != null)
+                {
+                    EngagedControllers.Add(RightControllerAction);
+                }
+            }
+        }
 
         [CalledAfterChangeOf(nameof(LeftControllerVelocityTracker))]
         protected virtual void OnAfterLeftControllerVelocityTrackerChange()
@@ -83,26 +144,6 @@
                 {
                     RightControllerProxy.ProxySource = null;
                 }
-            }
-        }
-
-        [CalledAfterChangeOf(nameof(LeftControllerAction))]
-        protected virtual void OnAfterLeftControllerActionChange()
-        {
-            if (EngageLeftController != null)
-            {
-                EngageLeftController.ClearSources();
-                EngageLeftController.AddSource(LeftControllerAction);
-            }
-        }
-
-        [CalledAfterChangeOf(nameof(RightControllerAction))]
-        protected virtual void OnAfterRightControllerActionChange()
-        {
-            if (EngageRightController != null)
-            {
-                EngageRightController.ClearSources();
-                EngageRightController.AddSource(RightControllerAction);
             }
         }
 
@@ -144,9 +185,11 @@
 
         protected virtual void OnEnable()
         {
+            OnAfterMoveWhenChange();
             OnAfterLeftControllerActionChange();
-            OnAfterLeftControllerVelocityTrackerChange();
             OnAfterRightControllerActionChange();
+            OnAfterAnyControllerActionChange();
+            OnAfterLeftControllerVelocityTrackerChange();
             OnAfterRightControllerVelocityTrackerChange();
             OnAfterSpeedThresholdChange();
             OnAfterSpeedMutiplierChange();
