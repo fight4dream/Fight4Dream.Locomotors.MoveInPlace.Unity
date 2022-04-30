@@ -1,73 +1,347 @@
 ﻿namespace Fight4Dream.Locomotors.MoveInPlace.Unity
 {
     using Fight4Dream.Tracking.Velocity;
-    using Malimbe.MemberChangeMethod;
-    using Malimbe.MemberClearanceMethod;
-    using Malimbe.PropertySerializationAttribute;
     using UnityEngine;
     using Zinnia.Action;
     using Zinnia.Action.Collection;
     using Zinnia.Data.Attribute;
     using Zinnia.Data.Collection.List;
     using Zinnia.Data.Type.Transformation.Aggregation;
+    using Zinnia.Extension;
     using Zinnia.Tracking.Velocity;
 
     public class MoveInPlace : MonoBehaviour
     {
         public enum EngageMode { AnyEngaged, AllEngaged }
-        [Serialized]
-        public EngageMode MoveWhen { get; set; } = EngageMode.AnyEngaged;
-        [Serialized, Cleared]
-        public BooleanAction LeftControllerAction { get; set; }
-        [Serialized, Cleared]
-        public BooleanAction RightControllerAction { get; set; }
-        [Serialized, Cleared]
-        public VelocityTracker LeftControllerVelocityTracker { get; set; }
-        [Serialized, Cleared]
-        public VelocityTracker RightControllerVelocityTracker { get; set; }
-        [Serialized, Cleared]
-        public GameObjectObservableList ForwardSources { get; set; }
-        [Serialized, Cleared]
-        public GameObject Target { get; set; }
-        [Serialized]
-        public float SpeedMultiplier { get; set; } = 1f;
-        [Serialized]
-        public float SpeedThreshold { get; set; } = 0.1f;
-        [Serialized]
-        public float Drag { get; set; } = 1f;
+        [SerializeField]
+        private EngageMode moveWhen = EngageMode.AnyEngaged;
+        public EngageMode MoveWhen
+        {
+            get
+            {
+                return moveWhen;
+            }
+            set
+            {
+                moveWhen = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterMoveWhenChange();
+                }
+            }
+        }
 
-        [Serialized, Cleared]
-        [field: Header("Reference Settings"), Restricted]
-        public AnyAction AnyEngaged { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public AllAction AllEngaged { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public ActionObservableList EngagedControllers { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public BooleanAction EngageLeftController { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public BooleanAction EngageRightController { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public ComponentTrackerProxy LeftControllerProxy { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public ComponentTrackerProxy RightControllerProxy { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public SpeedChecker SpeedChecker { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public FloatMultiplier SetSpeedMultiplier { get; set; }
-        [Serialized, Cleared]
-        [field: Restricted]
-        public ArtificialVelocityApplierProcess MoveTarget { get; set; }
+        [SerializeField]
+        private BooleanAction leftControllerAction = null;
+        public BooleanAction LeftControllerAction
+        {
+            get
+            {
+                return leftControllerAction;
+            }
+            set
+            {
+                leftControllerAction = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterLeftControllerActionChange();
+                    OnAfterAnyControllerActionChange();
+                }
+            }
+        }
 
-        [CalledAfterChangeOf(nameof(MoveWhen))]
+        [SerializeField]
+        private BooleanAction rightControllerAction = null;
+        public BooleanAction RightControllerAction
+        {
+            get
+            {
+                return rightControllerAction;
+            }
+            set
+            {
+                rightControllerAction = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterRightControllerActionChange();
+                    OnAfterAnyControllerActionChange();
+                }
+            }
+        }
+
+        [SerializeField]
+        private VelocityTracker leftControllerVelocityTracker = null;
+        public VelocityTracker LeftControllerVelocityTracker
+        {
+            get
+            {
+                return leftControllerVelocityTracker;
+            }
+            set
+            {
+                leftControllerVelocityTracker = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterLeftControllerVelocityTrackerChange();
+                }
+            }
+        }
+
+        [SerializeField]
+        private VelocityTracker rightControllerVelocityTracker = null;
+        public VelocityTracker RightControllerVelocityTracker
+        {
+            get
+            {
+                return rightControllerVelocityTracker;
+            }
+            set
+            {
+                rightControllerVelocityTracker = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterRightControllerVelocityTrackerChange();
+                }
+            }
+        }
+
+        [SerializeField]
+        private GameObjectObservableList forwardSources = null;
+        public GameObjectObservableList ForwardSources
+        {
+            get
+            {
+                return forwardSources;
+            }
+            set
+            {
+                forwardSources = value;
+            }
+        }
+
+        [SerializeField]
+        private GameObject target = null;
+        public GameObject Target
+        {
+            get
+            {
+                return target;
+            }
+            set
+            {
+                target = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterTargetChange();
+                }
+            }
+        }
+
+        [SerializeField]
+        private float speedMultiplier = 1f;
+        public float SpeedMultiplier
+        {
+            get
+            {
+                return speedMultiplier;
+            }
+            set
+            {
+                speedMultiplier = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterSpeedMutiplierChange();
+                }
+            }
+        }
+
+        [SerializeField]
+        private float speedThreshold = 0.1f;
+        public float SpeedThreshold
+        {
+            get
+            {
+                return speedThreshold;
+            }
+            set
+            {
+                speedThreshold = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterSpeedThresholdChange();
+                }
+            }
+        }
+
+        [SerializeField]
+        private float drag = 1f;
+        public float Drag
+        {
+            get
+            {
+                return drag;
+            }
+            set
+            {
+                drag = value;
+                if (this.IsMemberChangeAllowed())
+                {
+                    OnAfterDragChange();
+                }
+            }
+        }
+
+        [Header("Reference Settings")]
+        [Restricted]
+        [SerializeField]
+        private AnyAction anyEngaged = null;
+        public AnyAction AnyEngaged
+        {
+            get
+            {
+                return anyEngaged;
+            }
+            set
+            {
+                anyEngaged = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private AllAction allEngaged = null;
+        public AllAction AllEngaged
+        {
+            get
+            {
+                return allEngaged;
+            }
+            set
+            {
+                allEngaged = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private ActionObservableList engagedControllers = null;
+        public ActionObservableList EngagedControllers
+        {
+            get
+            {
+                return engagedControllers;
+            }
+            set
+            {
+                engagedControllers = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private BooleanAction engageLeftController = null;
+        public BooleanAction EngageLeftController
+        {
+            get
+            {
+                return engageLeftController;
+            }
+            set
+            {
+                engageLeftController = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private BooleanAction engageRightController = null;
+        public BooleanAction EngageRightController
+        {
+            get
+            {
+                return engageRightController;
+            }
+            set
+            {
+                engageRightController = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private ComponentTrackerProxy leftControllerProxy = null;
+        public ComponentTrackerProxy LeftControllerProxy
+        {
+            get
+            {
+                return leftControllerProxy;
+            }
+            set
+            {
+                leftControllerProxy = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private ComponentTrackerProxy rightControllerProxy = null;
+        public ComponentTrackerProxy RightControllerProxy
+        {
+            get
+            {
+                return rightControllerProxy;
+            }
+            set
+            {
+                rightControllerProxy = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private SpeedChecker speedChecker = null;
+        public SpeedChecker SpeedChecker
+        {
+            get
+            {
+                return speedChecker;
+            }
+            set
+            {
+                speedChecker = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private FloatMultiplier setSpeedMultiplier = null;
+        public FloatMultiplier SetSpeedMultiplier
+        {
+            get
+            {
+                return setSpeedMultiplier;
+            }
+            set
+            {
+                setSpeedMultiplier = value;
+            }
+        }
+
+        [Restricted]
+        [SerializeField]
+        private ArtificialVelocityApplierProcess moveTarget = null;
+        public ArtificialVelocityApplierProcess MoveTarget
+        {
+            get
+            {
+                return moveTarget;
+            }
+            set
+            {
+                moveTarget = value;
+            }
+        }
+
         protected virtual void OnAfterMoveWhenChange()
         {
             if (AnyEngaged != null && AllEngaged != null)
@@ -77,7 +351,6 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(LeftControllerAction))]
         protected virtual void OnAfterLeftControllerActionChange()
         {
             if (EngageLeftController != null)
@@ -87,7 +360,6 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(RightControllerAction))]
         protected virtual void OnAfterRightControllerActionChange()
         {
             if (EngageRightController != null)
@@ -97,8 +369,6 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(LeftControllerAction))]
-        [CalledAfterChangeOf(nameof(RightControllerAction))]
         protected virtual void OnAfterAnyControllerActionChange()
         {
             if (EngagedControllers != null)
@@ -115,7 +385,6 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(LeftControllerVelocityTracker))]
         protected virtual void OnAfterLeftControllerVelocityTrackerChange()
         {
             if (LeftControllerProxy != null)
@@ -131,7 +400,6 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(RightControllerVelocityTracker))]
         protected virtual void OnAfterRightControllerVelocityTrackerChange()
         {
             if (RightControllerProxy != null)
@@ -147,25 +415,6 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(SpeedThreshold))]
-        protected virtual void OnAfterSpeedThresholdChange()
-        {
-            if (SpeedChecker != null)
-            {
-                SpeedChecker.SpeedThreshold = SpeedThreshold;
-            }
-        }
-
-        [CalledAfterChangeOf(nameof(SpeedMultiplier))]
-        protected virtual void OnAfterSpeedMutiplierChange()
-        {
-            if (SetSpeedMultiplier != null)
-            {
-                SetSpeedMultiplier.Collection.SetAtOrAddIfEmpty(SpeedMultiplier, 0);
-            }
-        }
-
-        [CalledAfterChangeOf(nameof(Target))]
         protected virtual void OnAfterTargetChange()
         {
             if (MoveTarget != null)
@@ -174,7 +423,22 @@
             }
         }
 
-        [CalledAfterChangeOf(nameof(Drag))]
+        protected virtual void OnAfterSpeedMutiplierChange()
+        {
+            if (SetSpeedMultiplier != null)
+            {
+                SetSpeedMultiplier.Collection.SetAtOrAddIfEmpty(SpeedMultiplier, 0);
+            }
+        }
+
+        protected virtual void OnAfterSpeedThresholdChange()
+        {
+            if (SpeedChecker != null)
+            {
+                SpeedChecker.SpeedThreshold = SpeedThreshold;
+            }
+        }
+
         protected virtual void OnAfterDragChange()
         {
             if (MoveTarget != null)
@@ -191,9 +455,9 @@
             OnAfterAnyControllerActionChange();
             OnAfterLeftControllerVelocityTrackerChange();
             OnAfterRightControllerVelocityTrackerChange();
-            OnAfterSpeedThresholdChange();
-            OnAfterSpeedMutiplierChange();
             OnAfterTargetChange();
+            OnAfterSpeedMutiplierChange();
+            OnAfterSpeedThresholdChange();
             OnAfterDragChange();
             if (LeftControllerProxy != null)
             {

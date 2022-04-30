@@ -1,8 +1,6 @@
 ﻿namespace Fight4Dream.Locomotors.MoveInPlace.Unity
 {
     using System;
-    using Malimbe.PropertySerializationAttribute;
-    using Malimbe.XmlDocumentationAttribute;
     using UnityEngine;
     using UnityEngine.Events;
     using Zinnia.Data.Collection.List;
@@ -20,12 +18,13 @@
         [Serializable]
         public class UnityEvent : UnityEvent<Vector3> { }
 
+        [Tooltip("Determines whether to extract the local property or the world property.")]
+        [SerializeField]
+        private bool useLocal = false;
         /// <summary>
         /// Determines whether to extract the local property or the world property.
         /// </summary>
-        [Serialized]
-        [field: DocumentedByXml]
-        public bool UseLocal { get; set; }
+        public bool UseLocal { get => useLocal; set => useLocal = value; }
 
         /// <summary>
         /// The direction axes of the transform.
@@ -46,12 +45,13 @@
             Forward
         }
 
+        [Tooltip("The direction to extract from the Transform.")]
+        [SerializeField]
+        private AxisDirection direction = AxisDirection.Forward;
         /// <summary>
         /// The direction to extract from the <see cref="Transform"/>.
         /// </summary>
-        [Serialized]
-        [field: DocumentedByXml]
-        public AxisDirection Direction { get; set; }
+        public AxisDirection Direction { get => direction; set => direction = value; }
 
         /// <summary>
         /// Sets the <see cref="Direction"/>.
